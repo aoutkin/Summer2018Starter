@@ -1,0 +1,1317 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     57137,       1309]
+NotebookOptionsPosition[     38108,        928]
+NotebookOutlinePosition[     51668,       1226]
+CellTagsIndexPosition[     51625,       1223]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Teaching Game Theory to Kids and Limits of Prediction", "Title",ExpressionUUID->"3d839dc3-358c-48ea-a084-7acff662d277"],
+
+Cell["", "Abstract",ExpressionUUID->"10b414c5-3016-4d88-8f3c-563baa1fc4a0"],
+
+Cell["Alexander V. Outkin, Jun. 29,  2018", "AuthorInfo",ExpressionUUID->"33ca0e05-1c1e-4480-98ea-10ff3651b3be"],
+
+Cell["\<\
+I have once been asked to read a lecture to a group of 6th graders on Game \
+Theory. After agreeing to it, I realized that explaining the game theory \
+basics to 6th graders my be difficult, given that terms such as Nash \
+equilibrium, minimax, maximin, optimization may not resonate in a 6th grade \
+classroom.  Instead I\[CloseCurlyQuote]ve introduced game theory using the \
+rock-paper-scissors (RPS) game. Turns out kids are excellent \
+game-theoreticians.  In RPS, they understood both the benefits of  \
+randomizing their own strategy and of predicting their opponent\
+\[CloseCurlyQuote]s moves. They offered a number of heuristics both for the \
+prediction and opening move.  These heuristics included optimizing against \
+past opponent moves, such as not playing rock if the opponent just played \
+scissors, and playing a specific opening hand, such as \
+\[OpenCurlyDoubleQuote]paper\[CloseCurlyDoubleQuote]. Visualizing the effects \
+of such strategic choices on-the-fly would be interesting and educational. \
+This brief essay attempts demonstrating and visualizing the value of a few \
+different strategic options in RPS.\
+\>", "Text",ExpressionUUID->"b5744172-c9e9-436c-a73e-dc42d2343b77"],
+
+Cell["\<\
+Specifically, we would like to illustrate the following: 1) what is the value \
+of being unpredictable?; and 2) what is the value of being able to predict \
+your opponent? \
+\>", "Text",ExpressionUUID->"8826322e-b562-4981-b679-7240f8fa2d8c"],
+
+Cell["\<\
+In regard to prediction of human players, the question 2) has been reflected \
+in Jon McLoone's entry in Wolfram Blog from January 20, 2014[1]. McLoone \
+created a predictive algorithm for playing against human opponents, that \
+learns to beat human opponents reliably after approximately 30 - 40 games. I \
+use McLoone's implementation to represent a predictive and random strategies. \
+\>", "Text",ExpressionUUID->"4315a0b1-d9fa-4789-9594-893e9e105a81"],
+
+Cell["\<\
+The rest of this documents 1) investigates performance of this predictive \
+strategy against a random strategy (which is optimal in RPS) and in 2)  \
+attempts to turn this  predictive power against the predictive strategy by \
+allowing the opponent the full knowledge of the predictor\[CloseCurlyQuote]s \
+strategy (but not the choices made using the strategy). This exposes a \
+weakness in  predictions made without taking risks into account by \
+illustrating that predictive strategy may make  the predictor predictable as \
+well.\
+\>", "Text",ExpressionUUID->"f05049ab-c5c6-4335-a69f-27af9a7d1901"],
+
+Cell[CellGroupData[{
+
+Cell["The Rock, Paper, Scissors Game ", "Section",ExpressionUUID->"f3c47d10-88b8-4d44-8d7b-658c16b15b68"],
+
+Cell["The game  includes the following components:", "Text",ExpressionUUID->"c58488d8-3d7d-454b-9967-eea92edf98c9"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Player strategies. Strategy takes the current state and past history and \
+determines new action. It can be represented as a map from history up to the \
+current state to action (Rock, Paper, of Scissors). We represent  R, P, S \
+respectively as 1, 2, 3.\
+\>", "Item",ExpressionUUID->"a9760173-afa9-44c8-97a5-68658450edfc"],
+
+Cell["\<\
+Game history. This includes the actions of both players. Game history at time \
+t is a tuple of both player actions.\
+\>", "Item",ExpressionUUID->"90fe31f0-2d83-4fc4-8bbc-2fc2cad0fef9"],
+
+Cell["\<\
+Game play outcome at each time.  The game at each time step results in one of \
+the players winning or in a draw. The draw only occurs if both players choose \
+the same action. A graph representing the game outcomes is represented below. \
+Directed links means that origin node beats the sink node. For example P \
+(paper) beats R (rock).\
+\>", "Item",ExpressionUUID->"9d20a623-17aa-464f-9909-dbfdd5daf69e"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"GraphPlot", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"R", "\[Rule]", "S"}], ",", 
+      RowBox[{"S", "\[Rule]", "P"}], ",", 
+      RowBox[{"P", "\[Rule]", "R"}]}], "}"}], ",", " ", 
+    RowBox[{"DirectedEdges", "\[Rule]", "True"}], ",", " ", 
+    RowBox[{"VertexLabeling", "\[Rule]", "True"}]}], "]"}], " "}]], "Input",Ex\
+pressionUUID->"7abd69f0-fcfa-45fa-93b2-c6e08872b9fe"],
+
+Cell[BoxData[
+ GraphicsBox[
+  TagBox[GraphicsComplexBox[{{0.4969214784940357, 0.}, {0.9999936537876046, 
+    0.8642445131631592}, {0., 0.8677954455904252}}, {
+     {RGBColor[0.5, 0., 0.], Arrowheads[{{0.04158219581151576, 0.7}}], 
+      ArrowBox[{1, 2}], ArrowBox[{2, 3}], ArrowBox[{3, 1}]}, {InsetBox[
+       FrameBox["R",
+        Background->RGBColor[1, 1, 0.8],
+        FrameStyle->RGBColor[0.94, 0.85, 0.36],
+        StripOnInput->False], 1], InsetBox[
+       FrameBox["S",
+        Background->RGBColor[1, 1, 0.8],
+        FrameStyle->RGBColor[0.94, 0.85, 0.36],
+        StripOnInput->False], 2], InsetBox[
+       FrameBox["P",
+        Background->RGBColor[1, 1, 0.8],
+        FrameStyle->RGBColor[0.94, 0.85, 0.36],
+        StripOnInput->False], 3]}}],
+   Annotation[#, 
+    VertexCoordinateRules -> {{0.4969214784940357, 0.}, {0.9999936537876046, 
+     0.8642445131631592}, {0., 0.8677954455904252}}]& ],
+  AspectRatio->Automatic,
+  FrameTicks->None,
+  PlotRange->All,
+  PlotRangePadding->Scaled[0.1]]], "Output",ExpressionUUID->"17f1b78d-f24d-\
+4fcd-bf73-03cadc706772"]
+}, Open  ]],
+
+Cell["\<\
+Because of the circular nature in the graph above, RPS does not have a Nash \
+equilibrium in pure (deterministic) strategies. The Nash equilibrium strategy \
+for each player to uniformly randomize over the three action choices. We call \
+this strategy \[OpenCurlyDoubleQuote]random\[CloseCurlyDoubleQuote].\
+\>", "Text",ExpressionUUID->"77422e3c-d14b-4e57-8f8a-5829228e0bc1"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Predictive and Random Strategy Implementation ", "Section",ExpressionUUID->"15c41211-fa9b-4cd8-baed-b7e32b0a67e2"],
+
+Cell["\<\
+I start with predictive strategy from [1]. I changed it to look back to the \
+past 100 games, rather than to the entire history, to speed-up the code.\
+\>", "Text",ExpressionUUID->"f3c8286e-580a-496d-9efe-b71a3fdce159"],
+
+Cell[BoxData[
+ RowBox[{"Code", " ", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Predictive", " ", "and", " ", "Random", " ", "Strategies", " ", 
+    "Implementation"}], "*)"}]}]], "Input",ExpressionUUID->"fd76f477-0aca-\
+4846-a904-5fcf50048e55"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Probabilistic", " ", "prediction", " ", "based", " ", "on", " ", "past", 
+    " ", "choices", " ", "of", " ", "player", " ", "2"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"prediction", "[", "pastChoices_List", "]"}], ":=", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Length", "[", "pastChoices", "]"}], "<", "2"}], ",", "1", 
+         ",", 
+         RowBox[{"DistributionFitTest", "[", 
+          RowBox[{"pastChoices", ",", 
+           RowBox[{"DiscreteUniformDistribution", "[", 
+            RowBox[{"{", 
+             RowBox[{"1", ",", "3"}], "}"}], "]"}]}], "]"}]}], "]"}], ",", 
+       "\[IndentingNewLine]", "\t\t\t\t\t", 
+       RowBox[{"RandomChoice", "[", 
+        RowBox[{"Commonest", "[", 
+         RowBox[{"pastChoices", "/.", 
+          RowBox[{
+           RowBox[{"{", "}"}], "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"1", ",", "2", ",", "3"}], "}"}]}]}], "]"}], "]"}]}], 
+      "}"}]}], ";"}], "\n", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+    "Search", " ", "throught", " ", "patters", " ", "of", " ", "historic", 
+     " ", "play"}], " ", "*)"}], "\n", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"historySeek", "[", 
+      RowBox[{"history_", ",", "n_Integer", ",", "col_"}], "]"}], ":=", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"n", ">", 
+        RowBox[{
+         RowBox[{"Length", "[", "history", "]"}], "-", "1"}]}], ",", 
+       RowBox[{"{", "}"}], ",", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{"#", "===", 
+            RowBox[{"{", "}"}]}], ",", 
+           RowBox[{"{", "}"}], ",", 
+           RowBox[{"#", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", "All", ",", "1"}], "]"}], "]"}]}], "]"}], 
+         "&"}], "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"Reap", "[", 
+          RowBox[{"Do", "[", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"history", "[", 
+                RowBox[{"[", 
+                 RowBox[{
+                  RowBox[{"i", ";;", 
+                   RowBox[{"(", 
+                    RowBox[{"i", "+", "n", "-", "1"}], ")"}]}], ",", "col"}], 
+                 "]"}], "]"}], "===", 
+               RowBox[{"history", "[", 
+                RowBox[{"[", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"-", "n"}], ";;"}], ",", "col"}], "]"}], "]"}]}], 
+              ",", 
+              RowBox[{"Sow", "[", 
+               RowBox[{"history", "[", 
+                RowBox[{"[", 
+                 RowBox[{"i", "+", "n"}], "]"}], "]"}], "]"}]}], "]"}], ",", 
+            "\[IndentingNewLine]", 
+            RowBox[{"{", 
+             RowBox[{"i", ",", 
+              RowBox[{
+               RowBox[{"Length", "[", "history", "]"}], "-", "n"}]}], "}"}]}],
+            "]"}], "]"}], "[", 
+         RowBox[{"[", "2", "]"}], "]"}], "]"}]}], "]"}]}], ";"}], "\n", 
+   RowBox[{"(*", " ", 
+    RowBox[{"Wrappers", " ", "for", " ", "prediction"}], " ", "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"bestGuess", "[", 
+      RowBox[{"{", "}"}], "]"}], ":=", 
+     RowBox[{"RandomInteger", "[", 
+      RowBox[{"{", 
+       RowBox[{"1", ",", "3"}], "}"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"bestGuess", "[", "data_", "]"}], ":=", 
+     RowBox[{
+      RowBox[{"Block", "[", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"max", "=", 
+          RowBox[{"Min", "[", 
+           RowBox[{"100", ",", " ", 
+            RowBox[{"Length", "[", "data", "]"}]}], "]"}]}], "}"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"Sort", "[", 
+         RowBox[{"Flatten", "[", 
+          RowBox[{
+           RowBox[{"Outer", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"prediction", "[", 
+               RowBox[{"historySeek", "[", 
+                RowBox[{"data", ",", "#1", ",", "#2"}], "]"}], "]"}], "&"}], 
+             ",", 
+             RowBox[{"Range", "[", "max", "]"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"1", ",", "2", ",", "All"}], "}"}]}], "]"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"1", ",", "2"}], "}"}]}], "]"}], "]"}]}], "]"}], "[", 
+      RowBox[{"[", 
+       RowBox[{"1", ",", 
+        RowBox[{"-", "1"}]}], "]"}], "]"}]}], ";"}], "\n", "\n", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"chooseGo", "[", "data_", "]"}], ":=", 
+     RowBox[{"Mod", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"bestGuess", "[", "data", "]"}], "+", "1"}], ",", "3", ",", 
+       "1"}], "]"}]}], ";"}], "\n", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+    "Utility", " ", "to", " ", "calculate", " ", "historic", " ", "game", " ",
+      "outcomes", " ", "based", " ", "on", " ", "historic", " ", "play"}], 
+    " ", "*)"}], "\n", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"winTest", "[", 
+      RowBox[{"p1_", ",", "p2_"}], "]"}], ":=", 
+     RowBox[{"Switch", "[", 
+      RowBox[{
+       RowBox[{"Mod", "[", 
+        RowBox[{
+         RowBox[{"p1", "-", "p2"}], ",", "3"}], "]"}], ",", 
+       "\[IndentingNewLine]", "\t\t\t\t", "0", ",", "\"\<Draw\>\"", ",", 
+       "\[IndentingNewLine]", "\t\t\t\t", "1", ",", "\"\<Win\>\"", ",", 
+       "\[IndentingNewLine]", "\t\t\t\t", "2", ",", "\"\<Lose\>\""}], "]"}]}],
+     ";"}], "\n", "\t\t\t"}]}]], "Code",ExpressionUUID->"f9ad267b-7610-4f11-\
+9592-5fb5074f58b2"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["1. Prediction vs. Randomization", "Section",ExpressionUUID->"58fd2536-4eea-4d49-a7eb-61f025da4204"],
+
+Cell["\<\
+This experiment shows the cumulative payoff of the predictive strategy \
+against  random strategy for a game of 1000 moves. \
+\>", "Text",ExpressionUUID->"5fbbe767-485e-4e13-87eb-3198733ae7dd"],
+
+Cell[BoxData[{
+ RowBox[{"history2", " ", "=", " ", 
+  RowBox[{"{", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", " ", "1"}], "}"}], "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Nest", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"AppendTo", "[", 
+      RowBox[{"history2", ",", " ", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"chooseGo", "[", "#", "]"}], ",", " ", 
+         RowBox[{"chooseGo", "[", 
+          RowBox[{"{", "}"}], "]"}]}], "}"}]}], "]"}], "&"}], ",", "history2",
+     ",", "1000"}], "]"}], ";"}]}], "Input",ExpressionUUID->"86fe73e5-de73-\
+4de2-86dc-a622919ede49"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"outcomes2", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"winTest", "@@@", "history2"}], ")"}], "/.", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"\"\<Win\>\"", "\[Rule]", "1"}], ",", 
+      RowBox[{"\"\<Lose\>\"", "->", 
+       RowBox[{"-", "1"}]}], ",", 
+      RowBox[{"\"\<Draw\>\"", "->", "0"}]}], "}"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"ListLinePlot", "[", 
+  RowBox[{"Accumulate", "[", "outcomes2", "]"}], "]"}]}], "Input",ExpressionUU\
+ID->"4104acc3-def4-487b-b56b-7726cefad26a"],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{}, {}, 
+    {RGBColor[0.368417, 0.506779, 0.709798], PointSize[0.006944444444444445], 
+     AbsoluteThickness[1.6], LineBox[CompressedData["
+1:eJxd2jvQO1UdxvEz2qTcgiIFxfoOw2Qcx1nv8cpBvEQUXcFLAIUFRSKKrBc0
+gsoRQSJ42TLllim3TOcpU26ZcsvYbZnS8b+/J875puDMh+d3Lnv29r55/x94
+/pXHX3ifc+4/73fuf+30GR9y6cen/3/m0zhDfh88R/39cI76O+XWPuDTeR/0
+6bwL5B9E/iH4w6gv4I9g/o8i/xjyj8OfQP0nMf+nkC+Rf9pa7eNnrNU+ftZa
+7ePn4M/DX4Afslb77tM8eOQPW3tn+cPIv5g6wO4RjP8I8i9hfNh92Vq7DgLs
+voL+sPsqclnzr7C+FfKvoT/sHk3rw6PIv45c1vn4BnJZ/R+zVsf/GPJvIpd1
+n3wLOezKtN7DoUzro6z5v52u38vaT9mu3wi7x621693Ldj8EOMLuCWvtfvJP
+pHmAI+y+g/llW1+Ao6zz911rdfzynfWXtX/I3ffS3Mvafzii3n0f/eEAR9it
+0/E9HNZpfZS1/idT+yfT+gBHWdfnU9bac9w/leYBjrB7Gv2fTvMAR9S7H1hr
+7w0v23sjyPbeiLD7YVrv4QBHWf2fSe2fSeuDbOuLstb/rLU6f8+meZDVH7mr
+Uuewl61/hTzAraz9lu38D8jdc6nz59J6j7ySNT/cyjpe5APsnk/rc9jDlazz
+I9v5a5FH9B+Qux9hfln7D1dwgFs4yrZ/g6z7/8dpnsMermTND7eoj/Aga/4X
+Uufync0PV6gPcIv6iHyA3U/S+lzW8xyuUB/gFo7wgPHci5j/xTT3cAUH2d5H
+LRxRP8BukzqXbT0eruAga//hiPoBuftp6lzW9Ye8kjU/8hZ5RD4gdy9hfti/
+lNZXcJBt/1rkEeMNsp5/P0udy7r/ZT1/ZD1/4Bb1ER5g9/N0vlzW/iOv4ID6
+FnmEB1nzv4z5X05zj7xCHuBW1vMX+QC7X2B+WccPV6gPyFs4wgPsXrFW198r
+ae5lHT8cZB2/rOOX7f00yPq9t06d1Wl9Ltt4hazzA5ey1gvXsn4+k+34G+Qt
+8k6+s+ODe3iAR9j9Mh0/g3PZ1lMg93AJV7LNV8MB9Q3yFnmHPMK9rOc9PMLu
+V9ba+yKDc9l+/ymQe9nGK+EK9TUcUN/ArWzH1yGPyHtZz1t4hN2v0/4ZnMOF
+rPMPl3CF/jUc4Ab9W7iT9XyR7f7q4QH1I8Zzv0nzTNbzEHmB3CMvZR0/8hr9
+A9zIep7BHeojxu8x/4B8RH/3appnr6Z5Dheynn/IS7iCazhg/gZ5C3eoj8h7
+5APyEXa/TeszOJdtPwvkHi5RX8l3U1vDAW7gVrb7vYMj6nvkAzyi3v0uXW8m
+6/hlnX9Z5x95CVcYr4YD3MAt1tfJtv4o2/H1yAf0H2G3TeszOIcLWc8/uJT1
+8xLyGnmQdf/Luv/hDvUR4/XIB/Qfkbvfp/0zOIcL2MOlrOsfruEg301tg7xF
+3iGPyHvkAzzC7rV0/dlraZ7DhWzzeVnvf9ne75VsPz/Usn3fGuAGbmX7vrZD
+HjF+j/kHeES9ez3Ns9fTPJdtvgK5R17Ktt4KruEg2/fXjWx/T2pl+/tYhzwi
+7+EBHmH3h9QZnMMF7OESrmT71HBAfYO8veX/vtd0yCP698gHeES9+2PqTLb9
+zWU7PwXsUV9ivOqWT58aeUD/BuO3sq5/OMp2/fXIB3hEvfuTtXY9Z7J+/pft
+/i6Qe7iEK4xfw0HW/Q+3qO8wfkTeIx+w/lG+s/YNa/X+fyPNc7iQ9f2crOOX
+bT2VbMdTwwFu0L/F+B3yiP69rPMv2/U0wi5Ya9ffLKR5Bs/hXLb5FsgLjL+E
+PbyS9Ty55dNnDVeo38A1vEX/gHwHN1jfHnmL/IC8g4+oj/AJ+9djf8+yne8B
+vsAjfIXdn1PP4Ey2622OPJd1/pEXyJewh1foXyJfy7Y/FfIN8hrewgHeyXoe
+I9/DLXxA/w75EY6oP8G9bNfPGfmA8S7wiP25Yn/dm2k+ezPNM3gO5+i/QF4g
+X8p6f8Ir1JfI17IdfwVv4BreYryAfIe8gfeob2U7PwfkHfof4Sjb8Z5kPc+R
+n5EP8AX1I/IrcveXNJ/J+nlAtvfPHHmO/gvkBfovYS/b+3Ql301tiXwNVxhv
+g/lrrG8LB9n2Ywc3ss4/3Mp6/iPv4CPGj8hPGK+Xdf/Dw61++lzgEfVX2L2V
+zjd7K82zWz595rd8+nk8v+Xx3n8XcCHPJi+Re3iF+hL5GnmFfIO8hreoDzie
+HfIG3sMtfMB4HXyEI/qfsN4ePsMDfIFHOZt8Re7eTuefvZ3mGfI5nKN+gbxA
+vkTuka9kW2+JfI3+lWz7uUFeo/8WeYB3cAPv4RbjH+AO9UfkEcd7Qt4jPyMf
+MP4F+zEiv6K/+2s6/ky+b3ImzyfP4Rz1C+QFvJTvn+zhFVzK+eQ18gr5Rr6b
+XMNbOKD/DnmDfI/5WxzfAfvRIT8ij8hPGL+Hz6gfkF/gEb6iv3snzWdw9k5a
+P5dt/bls189CtuurQL5Efw+vMF8Jr7G+Stb5l3X+kW/hgPF2yBvke7hF/QHu
+sJ4j8oj8hLxHfkY+wBesb8T+XZG7XeqZbONlss0/R57DC4xXyLr/ZZ1/5Cv0
+LzH+Guup4A3qa4y3hQPqd3CD8ffIW+QH+YHJHfIj+kf4BPfof4YH+IL+I3zF
+8bu/pZ7Jdj4y2c7XXLb7OYcXsu5/5EuM55Gv0L9EvkZeId/ANebbwgHHu0Pe
+IN/DLeoPmL9DfkT/iP0/yTr/yM/oP8AX1I/wFeO7d812/czeTfMM+RzOZbve
+F3ABL+UHJ3t5MXmFvES+hivUb+Aa82+RB+Q7HF8D71HfwgfUd/ARjtjvE9yj
+/gwP8AX9R/gKu/fS/rP30jyD57JdTznyBcYrZJ1/5B79Vxi/lPX+hyvZ7q8N
+XMNb2e7PAO/gBv33yFvkB7jDeo/II8Y7wT18Rv8BvmC+EfkVdn9PPZNtvgye
+oz5HvpD1/Jft94+lbL+feOQr5OUtnz5r5BXyDVzf6u37f+QB3mH8BvkebjH+
+Ae5u9VN7hCPqTxi/x3rO8ID9uyAf4Svs/pF6Jtsng+dwDi8wXoF8CXt4detv
+f/+B13B16z+1G+Q1xt/CAd7BDbzH8bW3PN777wHuUH+EI8Y/wT2O5wwPOP6L
+rO//kV+Ru39aq+//ZX3/D89lff8r2/evC7hA/RK5R75CXsJruJLt++CNfDe1
+tWx/393CAfU7uMH4e+QtxjvI9u9pOviI+ojxTsh75Gd4QP0FHjH/Vda/f/pX
+ms9k/T0cnss2fy7b/iyQF+i/xHwe+er//i+upKTI
+      "]]}}, {}, {}, {}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->{True, True},
+  AxesLabel->{None, None},
+  AxesOrigin->{0., 0},
+  DisplayFunction->Identity,
+  Frame->{{False, False}, {False, False}},
+  FrameLabel->{{None, None}, {None, None}},
+  FrameTicks->{{Automatic, Automatic}, {Automatic, Automatic}},
+  GridLines->{None, None},
+  GridLinesStyle->Directive[
+    GrayLevel[0.5, 0.4]],
+  ImagePadding->All,
+  ImageSize->{777.4765625, Automatic},
+  Method->{"CoordinatesToolOptions" -> {"DisplayFunction" -> ({
+        (Identity[#]& )[
+         Part[#, 1]], 
+        (Identity[#]& )[
+         Part[#, 2]]}& ), "CopiedValueFunction" -> ({
+        (Identity[#]& )[
+         Part[#, 1]], 
+        (Identity[#]& )[
+         Part[#, 2]]}& )}},
+  PlotRange->{{0., 1001.}, {-12., 16.}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{
+     Scaled[0.02], 
+     Scaled[0.02]}, {
+     Scaled[0.05], 
+     Scaled[0.05]}},
+  Ticks->{Automatic, Automatic}]], "Output",ExpressionUUID->"17a080e9-d1d7-\
+4fa8-8b52-4b8f2f65cdf5"]
+}, Open  ]],
+
+Cell["\<\
+The cumulative payoff of the predictive strategy spends most of the time in \
+positive domain. It is not entirely expected, because it is playing against \
+the optimal strategy in RPS for which there is nothing to predict. This may \
+be a consequence of the predictive strategy being probabilistic and thus \
+randomizing in response to a random strategy.\
+\>", "Text",ExpressionUUID->"9e299cf0-8992-4c9a-bac1-51dc1643e43f"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["2. Random vs. Random", "Section",ExpressionUUID->"e64cae42-63c7-4384-96b5-f68d5c9bcdd7"],
+
+Cell["\<\
+This experiment shows the cumulative payoff of the optimal strategy (random) \
+playing against the same strategy. \
+\>", "Text",ExpressionUUID->"6272a20d-b253-45c4-a7ee-d9239378557d"],
+
+Cell[BoxData[{
+ RowBox[{"history3", " ", "=", " ", 
+  RowBox[{"{", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", " ", "1"}], "}"}], "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Nest", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"AppendTo", "[", 
+      RowBox[{"history3", ",", " ", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"chooseGo", "[", 
+          RowBox[{"{", "}"}], "]"}], ",", " ", 
+         RowBox[{"chooseGo", "[", 
+          RowBox[{"{", "}"}], "]"}]}], "}"}]}], "]"}], "&"}], ",", "history3",
+     ",", "1000"}], "]"}], ";"}]}], "Input",ExpressionUUID->"0da7d843-b75e-\
+4646-8ac6-dd5cb59489f2"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"outcomes3", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"winTest", "@@@", "history3"}], ")"}], "/.", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"\"\<Win\>\"", "\[Rule]", "1"}], ",", 
+      RowBox[{"\"\<Lose\>\"", "->", 
+       RowBox[{"-", "1"}]}], ",", 
+      RowBox[{"\"\<Draw\>\"", "->", "0"}]}], "}"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"ListLinePlot", "[", 
+  RowBox[{"Accumulate", "[", "outcomes3", "]"}], "]"}]}], "Input",ExpressionUU\
+ID->"41bb619a-9672-4946-a43d-65691f4ffbdc"],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{}, {}, 
+    {RGBColor[0.368417, 0.506779, 0.709798], PointSize[0.006944444444444445], 
+     AbsoluteThickness[1.6], LineBox[CompressedData["
+1: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
+2OgcXsiPjy7gJeo9+l/93/8FNTt3Sg==
+      "]]}}, {}, {}, {}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->{True, True},
+  AxesLabel->{None, None},
+  AxesOrigin->{0., 0},
+  DisplayFunction->Identity,
+  Frame->{{False, False}, {False, False}},
+  FrameLabel->{{None, None}, {None, None}},
+  FrameTicks->{{Automatic, Automatic}, {Automatic, Automatic}},
+  GridLines->{None, None},
+  GridLinesStyle->Directive[
+    GrayLevel[0.5, 0.4]],
+  ImagePadding->All,
+  ImageSize->{731.2781249999996, Automatic},
+  Method->{"CoordinatesToolOptions" -> {"DisplayFunction" -> ({
+        (Identity[#]& )[
+         Part[#, 1]], 
+        (Identity[#]& )[
+         Part[#, 2]]}& ), "CopiedValueFunction" -> ({
+        (Identity[#]& )[
+         Part[#, 1]], 
+        (Identity[#]& )[
+         Part[#, 2]]}& )}},
+  PlotRange->{{0., 1001.}, {-23., 13.}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{
+     Scaled[0.02], 
+     Scaled[0.02]}, {
+     Scaled[0.05], 
+     Scaled[0.05]}},
+  Ticks->{Automatic, Automatic}]], "Output",ExpressionUUID->"4cbdc264-13ef-\
+4fa8-896b-e14ef4a41143"]
+}, Open  ]],
+
+Cell["\<\
+There is no clear winner in two random optimal strategies playing against \
+each other, which is expected. The probabily of deviations of the cumulative \
+payoff from zero can be evaluated analytically.\
+\>", "Text",ExpressionUUID->"1caee1d1-a9b6-4450-837c-47642cc5d86e"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["3. Beating the Predictor at their Own Game ", "Section",ExpressionUUID->"60431386-9ce0-44ce-ae0d-21bfae337e4d"],
+
+Cell["\<\
+Here we assume that the first player is using the same probabilistic strategy \
+as before, but the second player has access to the first player strategy \
+definition, but not the choices made by the strategy, and are using a naive \
+probabilistic optimization against the first player strategy. \
+\>", "Text",ExpressionUUID->"4da8624e-5d77-4a7b-8249-c4fcf34a3112"],
+
+Cell[BoxData[
+ RowBox[{"Code", " ", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "This", " ", "desribes", " ", "the", " ", "player", " ", "2", " ", 
+    "strategy", " ", "that", " ", "exploits", " ", "predictability", " ", 
+    "inherent", " ", "in", " ", "the", " ", "predictive", " ", "strategy"}], 
+   " ", "*)"}]}]], "Input",ExpressionUUID->"45563375-ae5a-4896-8daa-\
+9ac0e7eadf0f"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"antiPrediction", "[", "pastChoices_List", "]"}], ":=", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Length", "[", "pastChoices", "]"}], "<", "2"}], ",", "1", 
+        ",", 
+        RowBox[{"DistributionFitTest", "[", 
+         RowBox[{"pastChoices", ",", 
+          RowBox[{"DiscreteUniformDistribution", "[", 
+           RowBox[{"{", 
+            RowBox[{"1", ",", "3"}], "}"}], "]"}]}], "]"}]}], "]"}], ",", 
+      "\[IndentingNewLine]", "\t\t\t\t\t", 
+      RowBox[{"RandomChoice", "[", 
+       RowBox[{"Commonest", "[", 
+        RowBox[{"pastChoices", "/.", 
+         RowBox[{
+          RowBox[{"{", "}"}], "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"1", ",", "2", ",", "3"}], "}"}]}]}], "]"}], "]"}]}], 
+     "}"}]}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"worstGuess", "[", 
+    RowBox[{"{", "}"}], "]"}], ":=", 
+   RowBox[{"RandomInteger", "[", 
+    RowBox[{"{", 
+     RowBox[{"1", ",", "3"}], "}"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"worstGuess", "[", "data_", "]"}], ":=", 
+   RowBox[{
+    RowBox[{"Block", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"max", "=", 
+        RowBox[{"Min", "[", 
+         RowBox[{"100", ",", " ", 
+          RowBox[{"Length", "[", "data", "]"}]}], "]"}]}], "}"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"Sort", "[", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{
+         RowBox[{"Outer", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"antiPrediction", "[", 
+             RowBox[{"historySeek", "[", 
+              RowBox[{"data", ",", "#1", ",", "#2"}], "]"}], "]"}], "&"}], 
+           ",", 
+           RowBox[{"Range", "[", "max", "]"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"1", ",", "2", ",", "All"}], "}"}]}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"1", ",", "2"}], "}"}]}], "]"}], "]"}]}], "]"}], "[", 
+    RowBox[{"[", 
+     RowBox[{"1", ",", 
+      RowBox[{"-", "1"}]}], "]"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"antiChooseGo", "[", "data_", "]"}], ":=", 
+   RowBox[{"Mod", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"worstGuess", "[", "data", "]"}], "+", "1"}], ",", "3", ",", 
+     "1"}], "]"}]}], ";"}]}], "Input",ExpressionUUID->"bdb5c568-0782-4c5b-\
+966c-05d825ceb4a4"],
+
+Cell[BoxData[{
+ RowBox[{"history4", " ", "=", " ", 
+  RowBox[{"{", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", " ", "1"}], "}"}], "}"}]}], "\n", 
+ RowBox[{
+  RowBox[{"Nest", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"AppendTo", "[", 
+      RowBox[{"history4", ",", " ", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"chooseGo", "[", "#", "]"}], ",", " ", 
+         RowBox[{"antiChooseGo", "[", "#", "]"}]}], "}"}]}], "]"}], "&"}], 
+    ",", "history4", ",", "1000"}], "]"}], ";"}]}], "Code",ExpressionUUID->\
+"f8f46da8-ef8c-499a-9b2b-b7fdc1bfed3a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"outcomes4", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"winTest", "@@@", "history4"}], ")"}], "/.", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"\"\<Win\>\"", "\[Rule]", "1"}], ",", 
+      RowBox[{"\"\<Lose\>\"", "->", 
+       RowBox[{"-", "1"}]}], ",", 
+      RowBox[{"\"\<Draw\>\"", "->", "0"}]}], "}"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"ListLinePlot", "[", 
+  RowBox[{"Accumulate", "[", "outcomes4", "]"}], "]"}]}], "Input",ExpressionUU\
+ID->"58e5cdab-72ed-4e7f-ab28-8c4c2b269be6"],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{}, {}, 
+    {RGBColor[0.368417, 0.506779, 0.709798], PointSize[0.006944444444444445], 
+     AbsoluteThickness[1.6], LineBox[CompressedData["
+1:eJxd1jmww0YZAOAdaFyqSOEihchkMh4mk1EOwJwRt7lFIGBuEQiYMwqnucVt
+bpUuVb5SpTu2fKXLV6p8dCpfyTD2htGnwprPv37/+++uZL3hpVdeePl1IYT/
+vD6E/50vx/R8mB/l9ft/X84LnOFH8BI/inP8GH4cP4FX+I1Xh3g5PYmfwgV+
+Gj+Dn8XP4TfhN+O34DV+K34bfjt+B34nfhd+Hpdztzi8mzgO7yGOw3uvXlzj
+OLyPOA7vJ47DB4jj8EHiyWl8G8aPw4fIx+HDxHH4CHEcPkoch48Rx+HjxHH4
+BHEcqrlL3OKIwyfJxy2OyWl+X5i7xC2OOHyKfNziiMOnyU++Pk9aHHF4kXzc
+vji/PhIPnyEftzji8FnycYsjDlvycYsjDp8jH7c44vB58nGbnObvtfj1+MLc
+JW5xxOGL5OMWRxy+RD5ucUxO++fLc5e4xRGHr5CPWxxxqOfOcYlr3OIeRzzi
+8FXqJ1+PEte4xT2OeMThpblzXCan/nGL+9fy4+UTjzh8be48Oc0/rrm+xT2O
+eMTh69THJa5xi3sc8Zic/j9enjtPzq71cY1b3OOIRxy+MXeOS1zjFvc44hGH
+b1Ifl7jGLe5xxCMOO+rjEte4xT2OeMThW9THJa6T0/sF7nHEIw7fnjtPTvsf
+17jFPY54xOE7c+e4xDVuk1P/OOIRh+/OneMS17jFPY54xOF7V6f1xyWuk1N9
+3OOIRxy+P3eOS1zjFvc44jE5rf8rc+e4xDVucY8jHnFo5uPLcI6L5LQ+uMI1
+bnCLO9zjAUd8xiOecHj16kcuzl6dx3Nc4BJXuMYNbnGHezzgiM94xBMOP5g7
+w3lyWn9c4grXuElO+xd3uMcDjvz+GY94wuGHc2fJ6X7EBS5xhWvc4BZ3uMdD
+cnq/xmeuH/GEw4/mznCOC1ziCte4wW3ydf473OMBR3zGI55w+PHVaf/jHBfJ
+1+dFiStc4wa3uMM9HnDEZzziCYefzJ3hHBe4xFXy8uIaN7jFHe7xgCM+4xFP
+yY9eHH46d4ZzXOASV7jGDW5xh3s84IjPeMQTDvu5M5zjIjm/uMQVrnGDW36/
+wz0ecExO649HPOHws7kznOMCl7jCNW5wizvc4wFHfMYjnnD4+dwZznGBS1zh
+Gje4xR3u8YAjPuMRTzj8Yu4M57jAJa5wjRvc4g73eMARn/GIJxx+OXeGc1zg
+Ele4xk1y+v/DHe7xgCM+4xFPOPxq7gznuMAlrnCNG9ziDvd4wBGf8YgnHH49
+d4ZzXOASV7jGDW5xh3s84Jic9j8e8UR++M08nuEcF7jEFa5xg1vc4R4POOIz
+HvGEQzv3Amd4iXO8wgVe4xJvcIW3uE6+vg/scIP3uMUH3OEj7vENHvAJR3yL
+z/gOj/geT/gBh9/OvcAZXuIcr3CB17jEG1zhLa6Tr++Tu+THLm7wHrf4gDt8
+xD2+wQM+4Yhv8Zn+7vDIfNzjCT/g8Lu5FzjDS5zjFS7wOjnd/3iDK7zFNd5R
+r8F73OID7vAR9/gGD/iEI77FZ3yHR3yPJ/yAw+/nXuAML3GOV7jAa1ziDa6S
+r/t9i2u8ww3e4xYfcIePuE9O9z8e8Cn58Ysjvk1+4uIzvsMjvscTfsDhD3Mv
+cIaXOMcrXOA1LvEGV3iLa7zDDd7jNvk6/wfc4SPu8Q0e8AlHfIvP+A6P+B5P
++IH+wx+vXl28wBle4hyvcIHXuMQbXOEtrvEON8lvvHiPW3zAHT7iHt/gAZ9w
+xLf4jO/wiO/xhB+Sn7w4/GnuBc6Sr/lLnONVclp/vMYl3uAKb3GNd7jBe9zi
+A+7wkX57fMP8DfiEI77FZ3yHR3yPJ/yAw5/nXiRf+8mS0/2Pc7zCBV7jEm9w
+hbe4xjvc4D1u8QF3+Ih7fIMHfMIR3+IzvsMjvscTfsDhMPcCZ3iJc7zCBV7j
+Em9wlfzExVtc4x1u8B63+IA7fMQ9vsEDPuGIb/EZ3+ER3zN/E37A4S9zL3CG
+lzjHK1wkX58na1ziDa7wNvn6vKrxDjd4j1t8wB0+4h7f4AGfcMS3+Jz81MV3
+eEwuLr7HE37A4a9zL3CGlzjHK1zgNS7xBlfJ1363uMY73OA9bvEBd/iIe3zD
++Ad8whHf4jO+wyO+xxN+wOFvcy9wlnztb4lzvMIFXuMSb3CFt7jGO8bf4D1u
+8SH56Ys7fMQ9vkl+5uIBn3DEt/iM7/CI7/GEH3D4+9wLnOElzvEKF3iNS7zB
+Fd7iGu9wg/fJz17c4gPu8BH3+AYP+MR4Ir7FZ3yHR3yPJ/yAwz/m41vgDC9x
+jle4wGtc4g2u8BbXyc9dvMMN3uMWH3CHj7jHN3jAJxzxLT7jOzziezzhBxz+
+OfcCZ3iZnNYfr3CB17jEG+pVeItrvMMN3uMWH3CHj7jHN3jAJxzxLT7jOzwy
+f/d4wg84/GvuBc7wEud4hQu8xmXytZ/N//1f26/zfQ==
+      "]]}}, {}, {}, {}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->{True, True},
+  AxesLabel->{None, None},
+  AxesOrigin->{0., 0},
+  DisplayFunction->Identity,
+  Frame->{{False, False}, {False, False}},
+  FrameLabel->{{None, None}, {None, None}},
+  FrameTicks->{{Automatic, Automatic}, {Automatic, Automatic}},
+  GridLines->{None, None},
+  GridLinesStyle->Directive[
+    GrayLevel[0.5, 0.4]],
+  ImagePadding->All,
+  ImageSize->{697.08984375, Automatic},
+  Method->{"CoordinatesToolOptions" -> {"DisplayFunction" -> ({
+        (Identity[#]& )[
+         Part[#, 1]], 
+        (Identity[#]& )[
+         Part[#, 2]]}& ), "CopiedValueFunction" -> ({
+        (Identity[#]& )[
+         Part[#, 1]], 
+        (Identity[#]& )[
+         Part[#, 2]]}& )}},
+  PlotRange->{{0., 1001.}, {-20., 0}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{
+     Scaled[0.02], 
+     Scaled[0.02]}, {
+     Scaled[0.05], 
+     Scaled[0.02]}},
+  Ticks->{Automatic, Automatic}]], "Output",ExpressionUUID->"ae78c39d-dca3-\
+4a19-b136-fdc6bbc0f867"]
+}, Open  ]],
+
+Cell["\<\
+This shows the predictive strategy cumulative payoff convincingly trending \
+down over the course of 1000 games and indicates limits of prediction in the \
+face of better predictive capabilities. However, it is unclear why the \
+predictive strategy of the first player does not converge to a random play as \
+may have happened against random strategy.\
+\>", "Text",ExpressionUUID->"21196ba1-d261-4983-a08d-f71e6fd79179"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Further explorations", "Section",ExpressionUUID->"17defa1c-6b0f-4d71-b401-8f0c488384ce"],
+
+Cell["\<\
+While extremely simple and incomplete, these examples may have bearing on the \
+following topics:\
+\>", "Text",ExpressionUUID->"2073a963-1423-4fd5-92da-2239964a3e81"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Limits of prediction\[LineSeparator]Predictive strategy is reasonably \
+effective against the optimal (in the Nash equilibrium sense)  strategy.\
+\[LineSeparator]The specific predictive strategy used here is ineffective \
+against generally suboptimal strategy that has access to the predictive \
+strategy decision rule.\[LineSeparator]These two observations imply that \
+predictive strategies should be used with caution.\
+\>", "Item",ExpressionUUID->"74c5044f-9b69-4419-924c-f17dc9460531"],
+
+Cell["\<\
+Application to automated decision making in society\[LineSeparator]The result \
+in experiment 3. maybe indicative of potential problems with self-driving \
+cars and other autonomous technologies. For example if the autonomous cars \
+attempt to optimise on their local objective, they may (inadvertently) \
+exploit weakness in predictive strategies of other autonomous cars leading to \
+globally sub-optimal outcomes.\
+\>", "Item",ExpressionUUID->"fb8b0cc7-107c-4592-a39d-3201a773c867"],
+
+Cell["\<\
+Kids appear to be enthusiastic and skilled RPS players. Yet, you rarely see \
+grown-ups playing RPG, who seem to prefer throwing a coin or a dice or doing \
+some other kind of randomization that requires no skill or predictive \
+ability. Is it because kids are optimistic about their ability to predict the \
+future? To affect it? Do adults optimize and conserve the resources by not \
+bothering with prediction in certain situations?\
+\>", "Item",ExpressionUUID->"2532738a-3542-40c7-9a75-4c31ad533771"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["References", "Section",ExpressionUUID->"3aa5cf26-a05b-4e6d-bd91-4c89499744e4"],
+
+Cell["\<\
+[1] http://demonstrations.wolfram.com/RockPaperScissorsWithAIPlayer/\
+\>", "Item",ExpressionUUID->"5cb6b33e-86a5-4b8e-a024-7ae258c656e2"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Acknowledgements", "Section",ExpressionUUID->"6b859282-22c5-4a7d-ab29-eb7c28549649"],
+
+Cell["\<\
+I would like to thank Matthew Szudzik for valuable suggestions and comments \
+and Vladimir Grankovsky, Jonathan Gorard and other WSS2018 participants for \
+help with Wolfram language and Mathematica.\
+\>", "Text",ExpressionUUID->"0ecc211d-518d-40f4-9002-3c8d63c78a99"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Author contact information", "Section",ExpressionUUID->"d5d95cb5-335a-4af8-ac7e-7b619e5d5323"],
+
+Cell["avoutki@sandia.gov", "Text",ExpressionUUID->"dc195435-73e1-4ce9-bee8-ed70f7076afb"],
+
+Cell["Sandia National Laboratories", "Text",ExpressionUUID->"c437ac03-ffe3-4a6c-9d83-e9abad058a45"],
+
+Cell[TextData[StyleBox["Sandia National Laboratories is a multimission \
+laboratory managed and operated by National Technology and Engineering \
+Solutions of Sandia, LLC, a wholly owned subsidiary of Honeywell \
+International, Inc., for the U.S. Department of Energy\[CloseCurlyQuote]s \
+National Nuclear Security Administration under contract DE-NA-0003525.",
+ FontSize->10]], "Text",ExpressionUUID->"64f4ae0b-62b5-47b6-b176-\
+15831e136cd4"],
+
+Cell["", "Text",ExpressionUUID->"177766c4-4796-4b2e-91ef-2898156ec443"],
+
+Cell[TextData[StyleBox["",
+ FontSize->12]], "Text",
+ CellFrame->{{False, False}, {True, True}},
+ CellMargins->{{27, Inherited}, {10, 
+   100}},ExpressionUUID->"6e6c53ba-afe1-467c-a30b-3bf84be6fa11"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1329, 757},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+PrintingCopies->1,
+PrintingPageRange->{1, Automatic},
+TrackCellChangeTimes->False,
+Magnification:>1.25 Inherited,
+FrontEndVersion->"11.3 for Mac OS X x86 (32-bit, 64-bit Kernel) (March 5, \
+2018)",
+StyleDefinitions->Notebook[{
+   Cell[
+    StyleData[StyleDefinitions -> "Default.nb"]], 
+   Cell[
+    StyleData["Title"], PageWidth -> WindowWidth, ShowCellBracket -> False, 
+    CellMargins -> {{0, 0}, {0, 0}}, 
+    CellBracketOptions -> {"OverlapContent" -> True}, 
+    CellElementSpacings -> {"ClosedGroupTopMargin" -> 150}, 
+    CellGroupingRules -> {"TitleGrouping", 0}, PageBreakAbove -> True, 
+    CellFrameMargins -> {{20, 50}, {6, 78}}, TextAlignment -> Left, 
+    LineSpacing -> {1, 4}, LanguageCategory -> "NaturalLanguage", 
+    CounterIncrements -> {"Title"}, 
+    CounterAssignments -> {{"Section", 0}, {"Equation", 0}, {"Figure", 0}, {
+      "Subtitle", 0}, {"Subsubtitle", 0}, {"Item", 0}, {"Subitem", 0}, {
+      "Subsubitem", 0}, {"ItemNumbered", 0}, {"SubitemNumbered", 0}, {
+      "SubsubitemNumbered", 0}}, MenuSortingValue -> 1100, MenuCommandKey -> 
+    "1", FontFamily -> "Source Sans Pro", FontSize -> 44, 
+    FontTracking -> -0.8, FontColor -> RGBColor[255, 255, 255], Background -> 
+    RGBColor[0.71375, 0.20785, 0.17255]], 
+   Cell[
+    StyleData["Abstract"], PageWidth -> WindowWidth, ShowCellBracket -> False,
+     ShowSelection -> True, CellMargins -> {{0, 0}, {0, 0}}, 
+    CellBracketOptions -> {"OverlapContent" -> True}, 
+    CellFrameMargins -> {{30, 40}, {24, 2}}, TextAlignment -> Left, 
+    FontFamily -> "Source Sans Pro", FontSize -> 16, FontSlant -> "Italic", 
+    FontColor -> RGBColor[255, 255, 255], Background -> 
+    RGBColor[0.71375, 0.20785, 0.17255]], 
+   Cell[
+    StyleData["AuthorInfo"], PageWidth -> WindowWidth, 
+    CellFrame -> {{0, 0}, {8, 0}}, ShowCellBracket -> True, ShowSelection -> 
+    True, CellMargins -> {{0, 0}, {0, 0}}, 
+    CellBracketOptions -> {"OverlapContent" -> True}, 
+    CellFrameMargins -> {{30, 40}, {10, 4}}, CellFrameColor -> 
+    RGBColor[0.988235, 0.403922, 0.0313725], TextAlignment -> Left, 
+    FontFamily -> "Source Sans Pro", FontSize -> 17, FontWeight -> "SemiBold",
+     FontSlant -> "Plain", FontColor -> RGBColor[255, 255, 255], Background -> 
+    RGBColor[0.71375, 0.20785, 0.17255]], 
+   Cell[
+    CellGroupData[{
+      Cell[
+       StyleData["Chapter"], ShowCellBracket -> False, 
+       CellMargins -> {{20, 30}, {10, 45}}, 
+       StyleKeyMapping -> {
+        "Tab" -> "Subchapter", "Backspace" -> 
+         "Title", $CellContext`KeyEvent[
+          "Tab", $CellContext`Modifiers -> {$CellContext`Shift}] -> "Title"}, 
+       CellGroupingRules -> {"SectionGrouping", 10}, PageBreakBelow -> False, 
+       LineSpacing -> {1, 4}, LanguageCategory -> "NaturalLanguage", 
+       CounterIncrements -> "Chapter", 
+       CounterAssignments -> {{"Subchapter", 0}, {"Section", 0}, {
+         "Equation", 0}, {"Figure", 0}, {"Subsubtitle", 0}, {"Item", 0}, {
+         "Subitem", 0}, {"Subsubitem", 0}, {"ItemNumbered", 0}, {
+         "SubitemNumbered", 0}, {"SubsubitemNumbered", 0}}, MenuSortingValue -> 
+       1150, MenuCommandKey -> "2", FontFamily -> "Source Sans Pro", FontSize -> 
+       34, FontTracking -> -0.5, FontColor -> 
+       RGBColor[
+        0.21176470588235294`, 0.21176470588235294`, 0.21176470588235294`]], 
+      Cell[
+       StyleData["Chapter", "Presentation"], 
+       CellMargins -> {{67, Inherited}, {10, 15}}, LineSpacing -> {1, 16}, 
+       FontSize -> 48], 
+      Cell[
+       StyleData["Chapter", "SlideShow"], 
+       CellMargins -> {{
+         0.135 FrontEnd`AbsoluteCurrentValue[{WindowSize, 1}], 0.04 
+          FrontEnd`AbsoluteCurrentValue[{WindowSize, 1}]}, {10, 15}}, 
+       LineSpacing -> {1, 2}, FontSize -> 48], 
+      Cell[
+       StyleData["Chapter", "Condensed"], CellMargins -> {{18, 10}, {5, 7}}, 
+       FontSize -> 14], 
+      Cell[
+       StyleData["Chapter", "Printout"], 
+       CellMargins -> {{10, Inherited}, {10, 15}}], 
+      Cell[
+       StyleData["Chapter", "PrintoutGray"], 
+       CellMargins -> {{10, Inherited}, {10, 15}}]}, Open]], 
+   Cell[
+    CellGroupData[{
+      Cell[
+       StyleData["Section"], CellFrame -> False, ShowCellBracket -> True, 
+       CellMargins -> {{20, 30}, {10, 25}}, Evaluatable -> False, 
+       CellGroupingRules -> {"SectionGrouping", 40}, PageBreakBelow -> False, 
+       CellChangeTimes -> {3.716825484342502*^9}, Hyphenation -> False, 
+       CounterIncrements -> "Section", 
+       CounterAssignments -> {{"Subsection", 0}, {"Subsubsection", 0}, {
+         "ItemNumbered", 0}}, AspectRatioFixed -> True, FontFamily -> 
+       "Source Sans Pro", FontSize -> 28, FontTracking -> -0.5, FontColor -> 
+       RGBColor[0.71375, 0.20785, 0.17255]], 
+      Cell[
+       StyleData["Section", "Presentation", StyleDefinitions -> None]], 
+      Cell[
+       StyleData["Section", "SlideShow", StyleDefinitions -> None]], 
+      Cell[
+       StyleData["Section", "Printout", StyleDefinitions -> None]]}, Open]], 
+   Cell[
+    CellGroupData[{
+      Cell[
+       StyleData["Subsection"], ShowCellBracket -> False, 
+       CellMargins -> {{20, 30}, {6, 12}}, 
+       CellGroupingRules -> {"SectionGrouping", 50}, PageBreakBelow -> False, 
+       Hyphenation -> False, LineSpacing -> {1, 1}, CounterIncrements -> 
+       "Subsection", 
+       CounterAssignments -> {{"Subsubsection", 0}, {"ItemNumbered", 0}}, 
+       FontFamily -> "Source Sans Pro", FontSize -> 23, FontTracking -> -0.5, 
+       FontColor -> RGBColor[0.71375, 0.20785, 0.17255]], 
+      Cell[
+       StyleData["Subsection", "Presentation", StyleDefinitions -> None]], 
+      Cell[
+       StyleData["Subsection", "SlideShow", StyleDefinitions -> None]], 
+      Cell[
+       StyleData["Subsection", "Printout", StyleDefinitions -> None]]}, 
+     Closed]], 
+   Cell[
+    CellGroupData[{
+      Cell[
+       StyleData["Subsubsection"], ShowCellBracket -> False, 
+       CellMargins -> {{21, 21}, {2, 8}}, 
+       CellGroupingRules -> {"SectionGrouping", 60}, PageBreakBelow -> False, 
+       Hyphenation -> False, LineSpacing -> {1, 1}, CounterIncrements -> 
+       "Subsubsection", CounterAssignments -> {{"ItemNumbered", 0}}, 
+       FontFamily -> "Source Sans Pro", FontSize -> 18, FontTracking -> -0.5, 
+       FontColor -> RGBColor[0.9254901960784314, 0.49019607843137253`, 0.2]], 
+      Cell[
+       StyleData["Subsubsection", "Presentation", StyleDefinitions -> None]], 
+      Cell[
+       StyleData["Subsubsection", "SlideShow", StyleDefinitions -> None]], 
+      Cell[
+       StyleData["Subsubsection", "Printout", StyleDefinitions -> None]]}, 
+     Closed]], 
+   Cell[
+    StyleData["FurtherExplorationSection"], CellFrame -> {{0, 0}, {0, 0.5}}, 
+    ShowCellBracket -> False, CellMargins -> {{20, 30}, {4, 24}}, 
+    CellGroupingRules -> {"SectionGrouping", 30}, 
+    CellFrameMargins -> {{0, 0}, {0, 22}}, CellFrameColor -> GrayLevel[0.8], 
+    DefaultNewCellStyle -> "FurtherExploration", FontFamily -> 
+    "Source Sans Pro", FontSize -> 18, 
+    FontVariations -> {"CapsType" -> "AllCaps"}, FontColor -> 
+    RGBColor[0.2784313725490196, 0.2784313725490196, 0.2784313725490196]], 
+   Cell[
+    StyleData["FurtherExploration", StyleDefinitions -> StyleData["Text"]], 
+    ShowCellBracket -> False, CellMargins -> {{20, 10}, {2, 4}}, 
+    ReturnCreatesNewCell -> True, FontFamily -> "Source Sans Pro", FontSize -> 
+    16, FontColor -> RGBColor[0.71375, 0.20785, 0.17255]], 
+   Cell[
+    StyleData["AuthorshipSection"], ShowCellBracket -> False, 
+    CellMargins -> {{20, Inherited}, {4, 22}}, 
+    CellGroupingRules -> {"SectionGrouping", 30}, DefaultNewCellStyle -> 
+    "FurtherExploration", FontFamily -> "Source Sans Pro", FontSize -> 18, 
+    FontVariations -> {"CapsType" -> "AllCaps"}, FontColor -> 
+    RGBColor[0.2784313725490196, 0.2784313725490196, 0.2784313725490196]], 
+   Cell[
+    StyleData["Authorship", StyleDefinitions -> StyleData["Text"]], 
+    ShowCellBracket -> False, CellMargins -> {{20, 10}, {2, 4}}, 
+    ReturnCreatesNewCell -> True, FontFamily -> "Source Sans Pro", FontSize -> 
+    16, FontColor -> 
+    RGBColor[0.4392156862745098, 0.4392156862745098, 0.4392156862745098]], 
+   Cell[
+    CellGroupData[{
+      Cell["Styles for Body Text", "Section"], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["Text"], ShowCellBracket -> True, 
+          CellMargins -> {{20, 10}, {6, 8}}, ReturnCreatesNewCell -> True, 
+          DefaultNewCellStyle -> "Direction", FontSize -> 
+          15, $CellContext`DefaultReturnCreatedCellStyle -> "Direction"], 
+         Cell[
+          StyleData["Text", "Presentation", StyleDefinitions -> None]], 
+         Cell[
+          StyleData["Text", "SlideShow", StyleDefinitions -> None]], 
+         Cell[
+          StyleData["Text", "Printout", StyleDefinitions -> None], 
+          TextJustification -> 1.]}, Open]], 
+      Cell[
+       StyleData["CodeText", StyleDefinitions -> StyleData["Text"]], 
+       CellMargins -> {{23, 10}, {3, 8}}, CellFrameLabelMargins -> 4, 
+       MenuSortingValue -> 10000, MenuCommandKey -> "8", FontSize -> 15, 
+       FontWeight -> "Plain", FontColor -> 
+       GrayLevel[0.45], $CellContext`DefaultReturnCreatedCellStyle -> 
+       "Input"]}, Open]], 
+   Cell[
+    CellGroupData[{
+      Cell[
+      "Styles for Input, Output and Graphics", "Section", 
+       CellChangeTimes -> {3.7168930720372066`*^9}], 
+      Cell[
+       StyleData["Input"], CellMargins -> {{82, 10}, {5, 6}}, 
+       StyleKeyMapping -> {"=" -> "WolframAlphaShort", "*" -> "Item"}, 
+       AutoNumberFormatting -> False, FontSize -> 13], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["InputOnly"], CellMargins -> {{82, 10}, {7, 7}}, FontSize -> 
+          13], 
+         Cell[
+          StyleData["InputOnly", "Presentation"], 
+          CellMargins -> {{100, 10}, {8, 15}}], 
+         Cell[
+          StyleData["InputOnly", "SlideShow"], 
+          CellMargins -> {{100, 10}, {8, 15}}], 
+         Cell[
+          StyleData["InputOnly", "Condensed"], 
+          CellMargins -> {{50, 10}, {2, 3}}], 
+         Cell[
+          StyleData["InputOnly", "Printout"], 
+          CellMargins -> {{49, Inherited}, {Inherited, Inherited}}, 
+          LinebreakAdjustments -> {0.85, 2, 10, 1, 1}], 
+         Cell[
+          StyleData["InputOnly", "PrintoutGray"], 
+          CellMargins -> {{49, Inherited}, {Inherited, Inherited}}, 
+          LinebreakAdjustments -> {0.85, 2, 10, 1, 1}]}, Closed]], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["Code"]], 
+         Cell[
+          StyleData["Code", "Presentation"], 
+          CellMargins -> {{100, 10}, {8, 15}}], 
+         Cell[
+          StyleData["Code", "SlideShow"], 
+          CellMargins -> {{
+            0.135 FrontEnd`AbsoluteCurrentValue[{WindowSize, 1}], 0.01 
+             FrontEnd`AbsoluteCurrentValue[{WindowSize, 1}]}, {8, 15}}, 
+          LinebreakAdjustments -> {1, 2., 12., 1., 1.}, FontSize -> 20], 
+         Cell[
+          StyleData["Code", "Condensed"], CellMargins -> {{50, 10}, {2, 3}}], 
+         Cell[
+          StyleData["Code", "Printout"], 
+          CellMargins -> {{49, Inherited}, {Inherited, Inherited}}], 
+         Cell[
+          StyleData["Code", "PrintoutGray"], 
+          CellMargins -> {{49, Inherited}, {Inherited, Inherited}}]}, 
+        Closed]], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["Output"], CellMargins -> {{82, 10}, {10, 5}}, FontSize -> 
+          13], 
+         Cell[
+          StyleData["Output", "Presentation"], 
+          CellMargins -> {{100, 10}, {15, 8}}], 
+         Cell[
+          StyleData["Output", "SlideShow"], 
+          CellMargins -> {{
+            0.135 FrontEnd`AbsoluteCurrentValue[{WindowSize, 1}], 0.01 
+             FrontEnd`AbsoluteCurrentValue[{WindowSize, 1}]}, {15, 8}}, 
+          LinebreakAdjustments -> {1, 2., 12., 1., 1.}, FontSize -> 20], 
+         Cell[
+          StyleData["Output", "Condensed"], 
+          CellMargins -> {{50, Inherited}, {3, 2}}], 
+         Cell[
+          StyleData["Output", "Printout"], 
+          CellMargins -> {{49, Inherited}, {9, 3}}], 
+         Cell[
+          StyleData["Output", "PrintoutGray"], 
+          CellMargins -> {{49, Inherited}, {9, 3}}]}, Closed]], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["PlacedGraphics"], CellFrame -> False, ShowCellBracket -> 
+          False, CellMargins -> {{82, 21}, {8, 10}}, CellGroupingRules -> 
+          "GraphicsGrouping", CellHorizontalScrolling -> True, ShowCellLabel -> 
+          False, TextAlignment -> Left, LineSpacing -> {1, 1}, 
+          InsetBoxOptions -> {
+           BaseStyle -> {CellFrame -> None, Background -> None}}], 
+         Cell[
+          StyleData[
+          "PlacedGraphics", "Presentation", StyleDefinitions -> None]], 
+         Cell[
+          StyleData["PlacedGraphics", "SlideShow", StyleDefinitions -> None]], 
+         Cell[
+          StyleData["PlacedGraphics", "Printout", StyleDefinitions -> None]]},
+         Closed]], 
+      Cell[
+       StyleData["CellLabel"], LineSpacing -> {1, 1}, AutoNumberFormatting -> 
+       False, FontSize -> 9, FontSlant -> "Oblique"]}, Open]]}, Visible -> 
+  False, FrontEndVersion -> 
+  "11.3 for Mac OS X x86 (32-bit, 64-bit Kernel) (March 5, 2018)", 
+  StyleDefinitions -> "PrivateStylesheetFormatting.nb"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 125, 0, 177, "Title",ExpressionUUID->"3d839dc3-358c-48ea-a084-7acff662d277"],
+Cell[708, 24, 75, 0, 59, "Abstract",ExpressionUUID->"10b414c5-3016-4d88-8f3c-563baa1fc4a0"],
+Cell[786, 26, 112, 0, 55, "AuthorInfo",ExpressionUUID->"33ca0e05-1c1e-4480-98ea-10ff3651b3be"],
+Cell[901, 28, 1211, 17, 216, "Text",ExpressionUUID->"b5744172-c9e9-436c-a73e-dc42d2343b77"],
+Cell[2115, 47, 251, 4, 72, "Text",ExpressionUUID->"8826322e-b562-4981-b679-7240f8fa2d8c"],
+Cell[2369, 53, 465, 6, 101, "Text",ExpressionUUID->"4315a0b1-d9fa-4789-9594-893e9e105a81"],
+Cell[2837, 61, 611, 9, 130, "Text",ExpressionUUID->"f05049ab-c5c6-4335-a69f-27af9a7d1901"],
+Cell[CellGroupData[{
+Cell[3473, 74, 105, 0, 89, "Section",ExpressionUUID->"f3c47d10-88b8-4d44-8d7b-658c16b15b68"],
+Cell[3581, 76, 115, 0, 43, "Text",ExpressionUUID->"c58488d8-3d7d-454b-9967-eea92edf98c9"],
+Cell[CellGroupData[{
+Cell[3721, 80, 333, 5, 104, "Item",ExpressionUUID->"a9760173-afa9-44c8-97a5-68658450edfc"],
+Cell[4057, 87, 195, 3, 62, "Item",ExpressionUUID->"90fe31f0-2d83-4fc4-8bbc-2fc2cad0fef9"],
+Cell[4255, 92, 417, 6, 145, "Item",ExpressionUUID->"9d20a623-17aa-464f-9909-dbfdd5daf69e"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4709, 103, 434, 11, 54, "Input",ExpressionUUID->"7abd69f0-fcfa-45fa-93b2-c6e08872b9fe"],
+Cell[5146, 116, 1076, 25, 640, "Output",ExpressionUUID->"17f1b78d-f24d-4fcd-bf73-03cadc706772"]
+}, Open  ]],
+Cell[6237, 144, 385, 5, 112, "Text",ExpressionUUID->"77422e3c-d14b-4e57-8f8a-5829228e0bc1"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6659, 154, 120, 0, 139, "Section",ExpressionUUID->"15c41211-fa9b-4cd8-baed-b7e32b0a67e2"],
+Cell[6782, 156, 229, 3, 67, "Text",ExpressionUUID->"f3c8286e-580a-496d-9efe-b71a3fdce159"],
+Cell[7014, 161, 240, 6, 54, "Input",ExpressionUUID->"fd76f477-0aca-4846-a904-5fcf50048e55"],
+Cell[7257, 169, 5609, 153, 853, "Code",ExpressionUUID->"f9ad267b-7610-4f11-9592-5fb5074f58b2"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[12903, 327, 105, 0, 139, "Section",ExpressionUUID->"58fd2536-4eea-4d49-a7eb-61f025da4204"],
+Cell[13011, 329, 203, 3, 67, "Text",ExpressionUUID->"5fbbe767-485e-4e13-87eb-3198733ae7dd"],
+Cell[13217, 334, 596, 17, 96, "Input",ExpressionUUID->"86fe73e5-de73-4de2-86dc-a622919ede49"],
+Cell[CellGroupData[{
+Cell[13838, 355, 554, 15, 96, "Input",ExpressionUUID->"4104acc3-def4-487b-b56b-7726cefad26a"],
+Cell[14395, 372, 4564, 90, 964, "Output",ExpressionUUID->"17a080e9-d1d7-4fa8-8b52-4b8f2f65cdf5"]
+}, Open  ]],
+Cell[18974, 465, 433, 6, 157, "Text",ExpressionUUID->"9e299cf0-8992-4c9a-bac1-51dc1643e43f"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[19444, 476, 94, 0, 139, "Section",ExpressionUUID->"e64cae42-63c7-4384-96b5-f68d5c9bcdd7"],
+Cell[19541, 478, 193, 3, 67, "Text",ExpressionUUID->"6272a20d-b253-45c4-a7ee-d9239378557d"],
+Cell[19737, 483, 622, 18, 96, "Input",ExpressionUUID->"0da7d843-b75e-4646-8ac6-dd5cb59489f2"],
+Cell[CellGroupData[{
+Cell[20384, 505, 554, 15, 96, "Input",ExpressionUUID->"41bb619a-9672-4946-a43d-65691f4ffbdc"],
+Cell[20941, 522, 4623, 91, 906, "Output",ExpressionUUID->"4cbdc264-13ef-4fa8-896b-e14ef4a41143"]
+}, Open  ]],
+Cell[25579, 616, 281, 4, 112, "Text",ExpressionUUID->"1caee1d1-a9b6-4450-837c-47642cc5d86e"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[25897, 625, 117, 0, 139, "Section",ExpressionUUID->"60431386-9ce0-44ce-ae0d-21bfae337e4d"],
+Cell[26017, 627, 374, 5, 112, "Text",ExpressionUUID->"4da8624e-5d77-4a7b-8249-c4fcf34a3112"],
+Cell[26394, 634, 379, 8, 96, "Input",ExpressionUUID->"45563375-ae5a-4896-8daa-9ac0e7eadf0f"],
+Cell[26776, 644, 2413, 71, 340, "Input",ExpressionUUID->"bdb5c568-0782-4c5b-966c-05d825ceb4a4"],
+Cell[29192, 717, 556, 16, 140, "Code",ExpressionUUID->"f8f46da8-ef8c-499a-9b2b-b7fdc1bfed3a"],
+Cell[CellGroupData[{
+Cell[29773, 737, 554, 15, 96, "Input",ExpressionUUID->"58e5cdab-72ed-4e7f-ab28-8c4c2b269be6"],
+Cell[30330, 754, 3713, 76, 865, "Output",ExpressionUUID->"ae78c39d-dca3-4a19-b136-fdc6bbc0f867"]
+}, Open  ]],
+Cell[34058, 833, 430, 6, 157, "Text",ExpressionUUID->"21196ba1-d261-4983-a08d-f71e6fd79179"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[34525, 844, 94, 0, 139, "Section",ExpressionUUID->"17defa1c-6b0f-4d71-b401-8f0c488384ce"],
+Cell[34622, 846, 176, 3, 67, "Text",ExpressionUUID->"2073a963-1423-4fd5-92da-2239964a3e81"],
+Cell[CellGroupData[{
+Cell[34823, 853, 500, 7, 119, "Item",ExpressionUUID->"74c5044f-9b69-4419-924c-f17dc9460531"],
+Cell[35326, 862, 495, 7, 119, "Item",ExpressionUUID->"fb8b0cc7-107c-4592-a39d-3201a773c867"],
+Cell[35824, 871, 513, 7, 93, "Item",ExpressionUUID->"2532738a-3542-40c7-9a75-4c31ad533771"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[36386, 884, 84, 0, 89, "Section",ExpressionUUID->"3aa5cf26-a05b-4e6d-bd91-4c89499744e4"],
+Cell[36473, 886, 147, 2, 40, "Item",ExpressionUUID->"5cb6b33e-86a5-4b8e-a024-7ae258c656e2"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[36657, 893, 90, 0, 89, "Section",ExpressionUUID->"6b859282-22c5-4a7d-ab29-eb7c28549649"],
+Cell[36750, 895, 278, 4, 72, "Text",ExpressionUUID->"0ecc211d-518d-40f4-9002-3c8d63c78a99"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[37065, 904, 100, 0, 89, "Section",ExpressionUUID->"d5d95cb5-335a-4af8-ac7e-7b619e5d5323"],
+Cell[37168, 906, 89, 0, 43, "Text",ExpressionUUID->"dc195435-73e1-4ce9-bee8-ed70f7076afb"],
+Cell[37260, 908, 99, 0, 43, "Text",ExpressionUUID->"c437ac03-ffe3-4a6c-9d83-e9abad058a45"],
+Cell[37362, 910, 443, 6, 56, "Text",ExpressionUUID->"64f4ae0b-62b5-47b6-b176-15831e136cd4"],
+Cell[37808, 918, 71, 0, 43, "Text",ExpressionUUID->"177766c4-4796-4b2e-91ef-2898156ec443"],
+Cell[37882, 920, 198, 4, 180, "Text",ExpressionUUID->"6e6c53ba-afe1-467c-a30b-3bf84be6fa11"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+

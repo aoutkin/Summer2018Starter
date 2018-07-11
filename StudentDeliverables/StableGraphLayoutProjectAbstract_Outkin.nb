@@ -1,0 +1,193 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      7420,        185]
+NotebookOptionsPosition[      5035,        132]
+NotebookOutlinePosition[      5388,        148]
+CellTagsIndexPosition[      5345,        145]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["\<\
+Algorithm Development for Maximally - Stable Time - Dependent Graph Layout\
+\>", "Title",ExpressionUUID->"27f316bd-80f5-4af9-91d5-d86799e7168b"],
+
+Cell["Alexander V.Outkin", "Text",ExpressionUUID->"31b3df5b-8c4c-4199-884b-b5c502d6fb06"],
+
+Cell[CellGroupData[{
+
+Cell["1. Introduction", "Section",ExpressionUUID->"3bcd30fe-c046-4da0-9528-5503212bfb89"],
+
+Cell["\<\
+When a time - dependent graph is displayed over time, it is advantageous to \
+display it in such a fashion as to preserve the ability to understand both \
+the graph and the changes to it across the entire timeline.This is a non \
+trivial problem, because the graph may change discontinuously and \
+unexpectedly.The graph layout algorithms often are arbitrary for the final \
+layout orientation and that is one of the parameters we would like to \
+preserve for a graph.We start with an outline of the essential aspects of the \
+problem.\
+\>", "Text",ExpressionUUID->"fe4cda7d-50b9-4209-b97b-b80b6d46c6f3"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["2. Define the \"Maximally-Stable Time-Dependent Layout\"", "Section",ExpressionUUID->"c1d18f48-337c-4aef-9891-342da7f801e9"],
+
+Cell["\<\
+This could mean that parts of the graph that did not change remain in roughly \
+the same place in the new layout.This could also mean that the new graph is \
+easy to understand and relate to its previous instance, or that the entire \
+sequence of graphs it is easy to understand.Graph layout can be formulated as \
+optimization problem to attempt achieving one or all of these objectives.\
+\>", "Text",ExpressionUUID->"ce025403-1ed6-4bed-9909-f61ca07cc200"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+3. Define the set of graphs, the changes possible in incremental graphs, and \
+graph arrival rules\
+\>", "Section",ExpressionUUID->"7c953f63-5e69-4d38-af7a-cd74b55346cd"],
+
+Cell["\<\
+These can be informed by the domain the graphs represent.For example, the \
+layout of the graph representing science papers where papers and citation \
+links persist may be different from layout of the graphs representing changes \
+in a social network of an individual where both the other people and the \
+nature of connections can change suddenly.\
+\>", "Text",ExpressionUUID->"822cf220-b534-4bab-9d02-51a2c27cfae5"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["4. Define the specific optimization problem", "Section",ExpressionUUID->"b08e1179-3f71-42c1-9f18-6544887ee9ed"],
+
+Cell["Possibilities include :  ", "Text",ExpressionUUID->"efd94da1-eb12-49fb-a874-f8ff3740ce93"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+On - line consecutive display of a set of graphs that arrive in a particular \
+order, when the information at each time step is available about the current \
+and all of the past graphs.\
+\>", "Item",ExpressionUUID->"bc389088-b689-49e1-8d31-9eeb174f5413"],
+
+Cell["\<\
+Consecutive display of a set of graphs with the entire set available at the \
+beginning of the layout.\
+\>", "Item",ExpressionUUID->"37b06545-5a05-4119-999c-8175381b1800"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["5. Decide on what to display over time", "Section",ExpressionUUID->"551e5f87-60cc-4d38-8a4f-98978eca6847"],
+
+Cell["There are two possibilities:", "Text",ExpressionUUID->"2be6b21d-f1d5-46c1-b008-4a1adbde296f"],
+
+Cell[CellGroupData[{
+
+Cell["New graph, and perhaps some of the old graphs.", "Item",ExpressionUUID->"e2db9f78-ac49-4ed4-96d0-c5f0ca6a1c1c"],
+
+Cell["Changes to the graph in addition to 1. above.", "Item",ExpressionUUID->"0d619382-54e9-4254-9d4c-67f1f3136704"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[" 6. Initial Approach", "Section",ExpressionUUID->"d25eda6c-ce0c-4538-baa8-f1623af79244"],
+
+Cell["\<\
+We start with two consecutive graphs.We will use the FructermanReingold \
+algorithms to display them one after another, and we will display the \
+difference between the graphs separately.We then will test the algorithm on a \
+set of examples to evaluate if it works.\
+\>", "Text",ExpressionUUID->"6c984bd5-62c2-477d-be44-d42c4012ba42"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["7. Conclusions", "Section",ExpressionUUID->"ec2bb2d4-ff80-4347-88d3-95d8f0375c69"],
+
+Cell["\<\
+We will start with a simple example first of two graphs displayed \
+consecutively, address the issues identified above for this simple example, \
+and then extend the solution to a more general problem if time permits.\
+\>", "Text",ExpressionUUID->"22ec9c77-50bf-4f53-85d6-a746d9bc89ee"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{808, 690},
+WindowMargins->{{52, Automatic}, {Automatic, 4}},
+FrontEndVersion->"11.3 for Mac OS X x86 (32-bit, 64-bit Kernel) (March 5, \
+2018)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 154, 2, 160, "Title",ExpressionUUID->"27f316bd-80f5-4af9-91d5-d86799e7168b"],
+Cell[737, 26, 89, 0, 35, "Text",ExpressionUUID->"31b3df5b-8c4c-4199-884b-b5c502d6fb06"],
+Cell[CellGroupData[{
+Cell[851, 30, 89, 0, 67, "Section",ExpressionUUID->"3bcd30fe-c046-4da0-9528-5503212bfb89"],
+Cell[943, 32, 614, 9, 127, "Text",ExpressionUUID->"fe4cda7d-50b9-4209-b97b-b80b6d46c6f3"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1594, 46, 130, 0, 67, "Section",ExpressionUUID->"c1d18f48-337c-4aef-9891-342da7f801e9"],
+Cell[1727, 48, 467, 6, 104, "Text",ExpressionUUID->"ce025403-1ed6-4bed-9909-f61ca07cc200"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2231, 59, 180, 3, 105, "Section",ExpressionUUID->"7c953f63-5e69-4d38-af7a-cd74b55346cd"],
+Cell[2414, 64, 428, 6, 104, "Text",ExpressionUUID->"822cf220-b534-4bab-9d02-51a2c27cfae5"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2879, 75, 117, 0, 67, "Section",ExpressionUUID->"b08e1179-3f71-42c1-9f18-6544887ee9ed"],
+Cell[2999, 77, 96, 0, 35, "Text",ExpressionUUID->"efd94da1-eb12-49fb-a874-f8ff3740ce93"],
+Cell[CellGroupData[{
+Cell[3120, 81, 264, 4, 53, "Item",ExpressionUUID->"bc389088-b689-49e1-8d31-9eeb174f5413"],
+Cell[3387, 87, 181, 3, 32, "Item",ExpressionUUID->"37b06545-5a05-4119-999c-8175381b1800"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3617, 96, 112, 0, 67, "Section",ExpressionUUID->"551e5f87-60cc-4d38-8a4f-98978eca6847"],
+Cell[3732, 98, 99, 0, 35, "Text",ExpressionUUID->"2be6b21d-f1d5-46c1-b008-4a1adbde296f"],
+Cell[CellGroupData[{
+Cell[3856, 102, 117, 0, 32, "Item",ExpressionUUID->"e2db9f78-ac49-4ed4-96d0-c5f0ca6a1c1c"],
+Cell[3976, 104, 116, 0, 32, "Item",ExpressionUUID->"0d619382-54e9-4254-9d4c-67f1f3136704"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4141, 110, 94, 0, 67, "Section",ExpressionUUID->"d25eda6c-ce0c-4538-baa8-f1623af79244"],
+Cell[4238, 112, 345, 5, 81, "Text",ExpressionUUID->"6c984bd5-62c2-477d-be44-d42c4012ba42"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4620, 122, 88, 0, 67, "Section",ExpressionUUID->"ec2bb2d4-ff80-4347-88d3-95d8f0375c69"],
+Cell[4711, 124, 296, 4, 58, "Text",ExpressionUUID->"22ec9c77-50bf-4f53-85d6-a746d9bc89ee"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
